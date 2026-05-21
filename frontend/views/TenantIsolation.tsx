@@ -1,0 +1,84 @@
+import React from 'react';
+import { ShieldCheck, Database, FolderLock, Key } from 'lucide-react';
+
+export const TenantIsolation: React.FC = () => {
+    return (
+        <div className="max-w-5xl mx-auto animate-in fade-in duration-500">
+            <div className="mb-8">
+                <h2 className="text-3xl font-bold text-slate-900 mb-2">Multi-Tenant Data Isolation</h2>
+                <p className="text-slate-600">Ensuring absolute privacy and security across organizations and individual users.</p>
+            </div>
+
+            <div className="space-y-6">
+                {/* Level 1 */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex gap-6 items-start">
+                    <div className="bg-blue-100 p-3 rounded-xl shrink-0">
+                        <Database className="text-blue-600" size={28} />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">1. Relational Data (PostgreSQL)</h3>
+                        <p className="text-slate-600 mb-4">We employ a <strong>Logical Isolation</strong> strategy using Row-Level Security (RLS) or separate schemas.</p>
+                        <div className="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 overflow-x-auto">
+                            <code>
+                                -- Example: Row-Level Security Policy<br/>
+                                CREATE POLICY tenant_isolation_policy ON agent_configs<br/>
+                                USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+                            </code>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Level 2 */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex gap-6 items-start">
+                    <div className="bg-teal-100 p-3 rounded-xl shrink-0">
+                        <Key className="text-teal-600" size={28} />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">2. Vector Database (Agent Memory)</h3>
+                        <p className="text-slate-600 mb-2">Vector databases (like Milvus or Qdrant) store embeddings for RAG. We isolate this by:</p>
+                        <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
+                            <li>Using <strong>Partition Keys</strong> based on <code>tenant_id</code>.</li>
+                            <li>Appending metadata filters <code>{`{ tenant_id: '...', user_id: '...' }`}</code> to every similarity search query at the API layer.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {/* Level 3 - The specific requirement */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border-amber-200 border-2 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-bl-lg font-bold border-b border-l border-amber-200">
+                        CORE REQUIREMENT
+                    </div>
+                    <div className="flex gap-6 items-start">
+                        <div className="bg-amber-100 p-3 rounded-xl shrink-0">
+                            <FolderLock className="text-amber-600" size={28} />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">3. Independent User Folder System (Object Storage)</h3>
+                            <p className="text-slate-600 mb-4">
+                                To provide every user with an independent, scalable folder system for their files, documents, and agent outputs, we use Cloud Object Storage (AWS S3 / Google Cloud Storage) with a strict prefix-based routing architecture.
+                            </p>
+                            
+                            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
+                                <h4 className="text-sm font-bold text-slate-700 mb-2">Storage Key Structure:</h4>
+                                <code className="text-sm text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                                    s3://app-data-bucket/tenant_id/user_id/path/to/folder/file.pdf
+                                </code>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div className="flex items-start gap-2">
+                                    <ShieldCheck className="text-green-500 shrink-0 mt-0.5" size={16} />
+                                    <span className="text-slate-600"><strong>IAM Policies:</strong> Pre-signed URLs are generated by the backend ensuring users can only read/write to their specific <code>user_id</code> prefix.</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <ShieldCheck className="text-green-500 shrink-0 mt-0.5" size={16} />
+                                    <span className="text-slate-600"><strong>Infinite Scale:</strong> Object storage handles millions of files per user without the bottlenecks of traditional file systems.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
